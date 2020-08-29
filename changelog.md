@@ -4,6 +4,7 @@
 
 ### Features:
 
+* Golang report card
 * Configure `genesis.json` through `genesis` field in `config.yml`
 * Initialize git repository on `app` scaffolding
 * Check Go and GOPATH when running `serve`
