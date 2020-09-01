@@ -5,6 +5,7 @@ on: [push, pull_request]
 
 jobs:
   goreleaser:
+    continue-on-error: true
     runs-on: ubuntu-latest
     strategy: 
         matrix: 
