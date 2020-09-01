@@ -8,21 +8,21 @@ jobs:
     runs-on: ubuntu-latest
     strategy: 
         matrix: 
-          arch: [amd64, arm64, risc64]
+          arch: [amd64, arm64, riscv64]
           targetos: [windows, darwin, linux]
     
     env:
       working-directory: go/src/github.com/tendermint/starport 
     
-    name:     name: Gaia ${{ matrix.arch }} for ${{ matrix.targetos }} 
+    name: Starport ${{ matrix.arch }} for ${{ matrix.targetos }} 
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.15
-                 env: 
-                    GOOS: ${{ matrix.targetos }}
-                    GOARCH: ${{ matrix.arch }}
+        env: 
+          GOOS: ${{ matrix.targetos }}
+          GOARCH: ${{ matrix.arch }}
 
       - name: Set up Node
         uses: actions/setup-node@v2-beta
