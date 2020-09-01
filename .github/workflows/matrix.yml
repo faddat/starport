@@ -1,0 +1,59 @@
+name: matrix
+
+on: [push, pull_request]
+
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    strategy: 
+        matrix: 
+          arch: [amd64, arm64, risc64]
+          targetos: [windows, darwin, linux]
+    
+    env:
+      working-directory: go/src/github.com/tendermint/starport 
+    
+    name:     name: Gaia ${{ matrix.arch }} for ${{ matrix.targetos }} 
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+                 env: 
+                    GOOS: ${{ matrix.targetos }}
+                    GOARCH: ${{ matrix.arch }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: "14"
+
+      - name: Set up packr2
+        run: go get -u github.com/gobuffalo/packr/v2/packr2
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.working-directory }}
+          fetch-depth: 0
+
+      - name: Build UI
+        working-directory: ${{ env.working-directory }}
+        run:  make ui
+
+      - name: Run packr2
+        working-directory: ${{ env.working-directory }}
+        run: |
+          export GOPATH=$GITHUB_WORKSPACE/go
+          export PATH=$PATH:$GOPATH
+          cd starport/interface/cli/starport
+          packr2 -v
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: starport ${{ matrix.targetos }} ${{ matrix.arch }}
+          path: ${{ env.working-directory }}
+          
+          
+          
