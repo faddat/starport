@@ -225,6 +225,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	var (
 		// no-dash app name.
 		ndapp    = strings.ReplaceAll(s.app.Name, "-", "")
+		initapp = ndapp + "-001"
 		ndappd   = ndapp + "d"
 		ndappcli = ndapp + "cli"
 
@@ -307,7 +308,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				appd,
 				"init",
 				"mynode",
-				"--chain-id", ndapp,
+				"--chain-id", initapp,
 			),
 			step.PreExec(func() error {
 				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappd))
