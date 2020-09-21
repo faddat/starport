@@ -29,6 +29,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xos"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 	"golang.org/x/sync/errgroup"
+	"syscall"
 )
 
 var (
@@ -65,6 +66,13 @@ type starportServe struct {
 
 // Serve serves user apps.
 func Serve(ctx context.Context, app App, verbose bool) error {
+	var rLimit syscall.Rlimit
+	rLimit.Max = 8192
+	rLimit.Cur = 8192
+	err := syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+	if err != nil {
+		fmt.Println("Error Setting Rlimit ", err)
+	}
 	s := &starportServe{
 		app:            app,
 		verbose:        verbose,
@@ -72,7 +80,6 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
 	}
-	var err error
 	s.version, err = s.appVersion()
 	if err != nil && err != git.ErrRepositoryNotExists {
 		return err
