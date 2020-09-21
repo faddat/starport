@@ -225,7 +225,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	var (
 		// no-dash app name.
 		ndapp    = strings.ReplaceAll(s.app.Name, "-", "")
-		initapp = ndapp + "-001"
+		initapp = "0"
 		ndappd   = ndapp + "d"
 		ndappcli = ndapp + "cli"
 
