@@ -1,5 +1,0 @@
-accounts:
-  - name: user1
-    coins: ["1000token", "100000000stake"]
-  - name: user2
-    coins: ["500token"]

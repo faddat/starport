@@ -6,11 +6,9 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/xos"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	starportserve "github.com/tendermint/starport/starport/services/serve"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
 
 var appPath string
@@ -29,20 +27,13 @@ func NewServe() *cobra.Command {
 
 func serveHandler(cmd *cobra.Command, args []string) error {
 	verbose, _ := cmd.Flags().GetBool("verbose")
-	appName, _ := getAppAndModule(appPath)
+	path, err := gomodulepath.Parse(getModule(appPath))
+	if err != nil {
+		return err
+	}
 	app := starportserve.App{
-		Name: appName,
+		Name: path.Root,
 		Path: appPath,
-	}
-
-	confFile, err := xos.OpenFirst(starportconf.FileNames...)
-	if err != nil {
-		return errors.Wrap(err, "config file cannot be found")
-	}
-	defer confFile.Close()
-	conf, err := starportconf.Parse(confFile)
-	if err != nil {
-		return errors.Wrap(err, "config file is not valid")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -55,7 +46,11 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		cancel()
 	}()
 
-	err = starportserve.Serve(ctx, app, conf, verbose)
+	s, err := starportserve.New(app, verbose)
+	if err != nil {
+		return err
+	}
+	err = s.Serve(ctx)
 	if err == context.Canceled {
 		fmt.Println("aborted")
 		return nil
