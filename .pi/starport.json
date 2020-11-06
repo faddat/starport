@@ -42,7 +42,7 @@
         "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
         "echo 'nameserver 1.1.1.1' >> /etc/resolv.conf",
         "pacman -Syyu --noconfirm --needed",
-        "pacman -S parted openssh --noconfirm --needed"
+        "pacman -S parted openssh --noconfirm --needed",
 	"systemctl enable sshd",
 	"echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config",
       ]
