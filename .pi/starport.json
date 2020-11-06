@@ -44,7 +44,7 @@
         "pacman -Syyu --noconfirm --needed",
         "pacman -S parted openssh --noconfirm --needed",
 	"systemctl enable sshd",
-	"echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config",
+	"echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config"
       ]
     },
     {
