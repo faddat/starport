@@ -9,6 +9,8 @@ jobs:
   build:
     name: Starport Pi Image
     runs-on: ubuntu-latest
+    env:
+      working-directory: go/src/github.com/tendermint/starport
     steps:
       steps:
         - name: Set up Go
@@ -44,23 +46,23 @@ jobs:
             cd starport/interface/cli/starport
             packr2 -v
 
-      - name: Check out code
-        uses: actions/checkout@v1
-
       - name: Build starport-pi.img with packer-builder-arm
+        working-directory: ${{ env.working-directory }}
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build .pi/starport.json
 
       - name: Install PiShrink
+        working-directory: ${{ env.working-directory }}
         run: |
             wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
             chmod +x pishrink.sh
             sudo mv pishrink.sh /usr/local/bin
 
       - name: Shrink starport-pi.img
+        working-directory: ${{ env.working-directory }}
         run: sudo pishrink.sh -Z -v -r -a starport-pi.img
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Starport PI
-          path: starport-pi.img.xz
+          path: go/src/github.com/tendermint/starport/starport-pi.img.xz
