@@ -1,0 +1,66 @@
+# This workflow makes a 64 bit Raspberry Pi Arch Linux Image.
+# It does not have the security issues mentioned here: https://github.com/tendermint/tendermint/blob/master/docs/tendermint-core/running-in-production.md#validator-signing-on-32-bit-architectures-or-arm
+# Later, more devices will be supported, as well.
+
+name: Pi Image
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Starport Pi Image
+    runs-on: ubuntu-latest
+    steps:
+      steps:
+        - name: Set up Go
+          uses: actions/setup-go@v2
+          with:
+            go-version: 1.15
+
+        - name: Set up Node
+          uses: actions/setup-node@v2-beta
+
+        - name: Set up packr2
+          run: go get -u github.com/gobuffalo/packr/v2/packr2
+
+        - name: Set up Snapcraft
+          run: |
+            sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
+
+        - name: Checkout
+          uses: actions/checkout@v2
+          with:
+            path: ${{ env.working-directory }}
+            fetch-depth: 0
+
+        - name: Build UI
+          working-directory: ${{ env.working-directory }}
+          run: make ui
+
+        - name: Run packr2
+          working-directory: ${{ env.working-directory }}
+          run: |
+            export GOPATH=$GITHUB_WORKSPACE/go
+            export PATH=$PATH:$GOPATH
+            cd starport/interface/cli/starport
+            packr2 -v
+
+      - name: Check out code
+        uses: actions/checkout@v1
+
+      - name: Build starport-pi.img with packer-builder-arm
+        run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build .pi/starport.json
+
+      - name: Install PiShrink
+        run: |
+            wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+            chmod +x pishrink.sh
+            sudo mv pishrink.sh /usr/local/bin
+
+      - name: Shrink starport-pi.img
+        run: sudo pishrink.sh -Z -v -r -a starport-pi.img
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Starport PI
+          path: starport-pi.img.xz
