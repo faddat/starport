@@ -10,7 +10,7 @@ on: [push, pull_request]
 jobs:
   build:
     name: Starport Pi Image
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       working-directory: go/src/github.com/tendermint/starport
     steps:
