@@ -11,46 +11,20 @@ jobs:
   build:
     name: Starport Pi Image
     runs-on: self-hosted
-    env:
-      working-directory: go/src/github.com/tendermint/starport
     steps:
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.15
-
-      - name: Set up Node
-        uses: actions/setup-node@v2-beta
-
-      - name: Set up packr2
-        run: go get -u github.com/gobuffalo/packr/v2/packr2
-
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          path: ${{ env.working-directory }}
-          fetch-depth: 0
 
-      - name: Build UI
-        working-directory: ${{ env.working-directory }}
-        run: make ui
-
-      - name: Run packr2
-        working-directory: ${{ env.working-directory }}
-        run: |
-          export GOPATH=$GITHUB_WORKSPACE/go
-          export PATH=$PATH:$GOPATH
-          cd starport/interface/cli/starport
-          packr2 -v
+      - name: Compile Starrport arm64
+	    env:
+			GOARCH arm64
+	    run: make
 
       - name: Upload Starport Artifact
         uses: actions/checkout@v2
         with:
           name: starport arm64
           path: go/bin/starport
-
-      - name: Set up QEMU
-        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
 
       - name: Set up Docker Buildx
         id: buildx
