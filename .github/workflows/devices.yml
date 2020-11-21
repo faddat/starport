@@ -15,9 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Compile Starrport arm64
-        env: GOARCH arm64
-        run: make
+      - name: Compile Starport arm64
+        run: |
+          export GOARCH=arm64
+          make
 
       - name: Upload Starport Artifact
         uses: actions/checkout@v2
