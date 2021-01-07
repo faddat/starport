@@ -35,8 +35,7 @@ jobs:
           cd <%= AppName %>cli
           go build .
 
-
- 	  - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2
         with:
           name: <%= AppName %>cli ${{ matrix.targetos }} ${{ matrix.arch }}
           path: cmd/<%= AppName %>cli/<%= AppName %>cli
