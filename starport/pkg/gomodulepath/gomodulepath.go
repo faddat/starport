@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"golang.org/x/mod/module"
+	"golang.org/x/mod/semver"
 )
 
 // Path represents a Go module's path.
@@ -76,5 +77,9 @@ func validatePackageName(name string) error {
 
 func root(path string) string {
 	sp := strings.Split(path, "/")
-	return sp[len(sp)-1]
+	name := sp[len(sp)-1]
+	if semver.IsValid(name) { // omit versions.
+		name = sp[len(sp)-2]
+	}
+	return name
 }

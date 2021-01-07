@@ -23,13 +23,13 @@ func NewLaunchpad(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.typesQuerierModify(opts))
 	g.RunFn(t.keeperQuerierModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
-	g.RunFn(frontendSrcStoreAppModify(opts))
+	g.RunFn(t.frontendSrcStoreAppModify(opts))
 	return g, box(cosmosver.Launchpad, opts, g)
 }
 
 func (t *typedLaunchpad) handlerModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.AppName)
+		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -50,14 +50,15 @@ func (t *typedLaunchpad) handlerModify(opts *Options) genny.RunFn {
 
 func (t *typedLaunchpad) typesKeyModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/key.go", opts.AppName)
+		path := fmt.Sprintf("x/%s/types/key.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 		content := f.String() + fmt.Sprintf(`
 const (
-	%[2]vPrefix = "%[1]v-"
+	%[2]vPrefix = "%[1]v-value-"
+	%[2]vCountPrefix = "%[1]v-count-"
 )
 		`, opts.TypeName, strings.Title(opts.TypeName))
 		newFile := genny.NewFileS(path, content)
@@ -67,7 +68,7 @@ const (
 
 func (t *typedLaunchpad) typesCodecModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/codec.go", opts.AppName)
+		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -76,7 +77,7 @@ func (t *typedLaunchpad) typesCodecModify(opts *Options) genny.RunFn {
 		cdc.RegisterConcrete(MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
 		cdc.RegisterConcrete(MsgSet%[2]v{}, "%[3]v/Set%[2]v", nil)
 		cdc.RegisterConcrete(MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)`
-		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName), opts.AppName)
+		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName), opts.ModuleName)
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -85,7 +86,7 @@ func (t *typedLaunchpad) typesCodecModify(opts *Options) genny.RunFn {
 
 func (t *typedLaunchpad) clientCliTxModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.AppName)
+		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -103,7 +104,7 @@ func (t *typedLaunchpad) clientCliTxModify(opts *Options) genny.RunFn {
 
 func (t *typedLaunchpad) clientCliQueryModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.AppName)
+		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -120,7 +121,7 @@ func (t *typedLaunchpad) clientCliQueryModify(opts *Options) genny.RunFn {
 
 func (t *typedLaunchpad) typesQuerierModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/querier.go", opts.AppName)
+		path := fmt.Sprintf("x/%s/types/querier.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -137,7 +138,7 @@ func (t *typedLaunchpad) typesQuerierModify(opts *Options) genny.RunFn {
 
 func (t *typedLaunchpad) keeperQuerierModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/keeper/querier.go", opts.AppName)
+		path := fmt.Sprintf("x/%s/keeper/querier.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -151,8 +152,8 @@ func (t *typedLaunchpad) keeperQuerierModify(opts *Options) genny.RunFn {
 			return list%[2]v(ctx, k)
 		case types.QueryGet%[2]v:
 			return get%[2]v(ctx, path[1:], k)`
-		replacement := fmt.Sprintf(template, opts.ModulePath, opts.AppName)
-		replacement2 := fmt.Sprintf(template2, placeholder, opts.ModulePath, opts.AppName)
+		replacement := fmt.Sprintf(template, opts.ModulePath, opts.ModuleName)
+		replacement2 := fmt.Sprintf(template2, placeholder, opts.ModulePath, opts.ModuleName)
 		replacement3 := fmt.Sprintf(template3, placeholder2, strings.Title(opts.TypeName))
 		content := f.String()
 		content = strings.Replace(content, replacement, "", 1)
@@ -165,7 +166,7 @@ func (t *typedLaunchpad) keeperQuerierModify(opts *Options) genny.RunFn {
 
 func (t *typedLaunchpad) clientRestRestModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/rest/rest.go", opts.AppName)
+		path := fmt.Sprintf("x/%s/client/rest/rest.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -178,8 +179,27 @@ func (t *typedLaunchpad) clientRestRestModify(opts *Options) genny.RunFn {
 		r.HandleFunc("/%[2]v/%[4]v", delete%[3]vHandler(cliCtx)).Methods("DELETE")
 
 		`
-		replacement := fmt.Sprintf(template, placeholder, opts.AppName, strings.Title(opts.TypeName), opts.TypeName)
+		replacement := fmt.Sprintf(template, placeholder, opts.ModuleName, strings.Title(opts.TypeName), opts.TypeName)
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedLaunchpad) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := "vue/src/views/Index.vue"
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		fields := ""
+		for _, field := range opts.Fields {
+			fields += fmt.Sprintf(`'%[1]v', `, field.Name)
+		}
+		replacement := fmt.Sprintf(`%[1]v
+		<sp-type-form type="%[2]v" :fields="[%[3]v]" module="%[4]v" />`, placeholder4, opts.TypeName, fields, opts.ModuleName)
+		content := strings.Replace(f.String(), placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

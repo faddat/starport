@@ -1,12 +1,25 @@
 package module
 
-// Options ...
-type Options struct {
+// CreateOptions ...
+type CreateOptions struct {
+	ModuleName string
+	ModulePath string
+	AppName    string
+	OwnerName  string
+}
+
+// Validate that options are usable
+func (opts *CreateOptions) Validate() error {
+	return nil
+}
+
+// ImportOptions ...
+type ImportOptions struct {
 	AppName string
 	Feature string
 }
 
 // Validate that options are usable
-func (opts *Options) Validate() error {
+func (opts *ImportOptions) Validate() error {
 	return nil
 }
