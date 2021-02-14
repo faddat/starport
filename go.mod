@@ -15,13 +15,14 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/gertd/go-pluralize v0.1.7
 	github.com/go-bindata/go-bindata v3.1.2+incompatible
-	github.com/go-git/go-git/v5 v5.1.0
+	github.com/go-git/go-git/v5 v5.2.0
 	github.com/gobuffalo/genny v0.6.0
 	github.com/gobuffalo/packr/v2 v2.8.1
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
 	github.com/gookit/color v1.3.6
+	github.com/goreleaser/goreleaser v0.155.2 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/imdario/mergo v0.3.11
